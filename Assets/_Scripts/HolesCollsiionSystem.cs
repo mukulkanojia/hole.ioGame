@@ -27,30 +27,43 @@ public class HolesCollsiionSystem : MonoBehaviour{
         Collider[] holesColider = Physics.OverlapSphere(transform.position + offset,newSize,checkMask,QueryTriggerInteraction.Collide);
         if(holesColider.Length > 0){
             for (int h = 0; h < holesColider.Length; h++){
-                if(holesColider[h].gameObject.CompareTag("Bourndary")){
-                    holeController.onOutSideBoudary?.Invoke();
-                }
+                // if(holesColider[h].gameObject.CompareTag("Bourndary")){
+                //     transform.position = new Vector3(20,transform.position.y,20);
+                //     Debug.Log("Is Colliding Boundary");
+                //     return;
+                // }
                 if(holesColider[h] != myCollider){
                     HoleController holes = holesColider[h].GetComponent<HoleController>();
                     if(holes != null){
-                        if(transform.localScale.x > holes.transform.localScale.x){
-                            holeController.OnObjectFallInHole?.Invoke();
-                            holes.SetDeath();
-                            if(holeType == HoleType.Player){
-                                holeController.SetKillCount();
+                        if(holeType == HoleType.Player)
+                        {
+                            if (transform.localScale.x > holes.transform.localScale.x)
+                            {
+                                holeController.OnObjectFallInHole?.Invoke();
+                                holes.SetDeath();
+                                if (holeType == HoleType.Player)
+                                {
+                                    holeController.SetKillCount();
+                                }
+                                if (holes.GetComponent<Hole>() != null)
+                                {
+                                    GameHandler.i.SetKilledByName(holeController.GetHolesGroupData().LeaderName);
+                                    GameHandler.i.EndGame(true);
+                                }
+                                holes.gameObject.SetActive(false);
                             }
-                            if(holes.GetComponent<Hole>() != null){
-                                GameHandler.i.SetKilledByName(holeController.GetHolesGroupData().LeaderName);
-                                GameHandler.i.EndGame(true);
-                            }
-                            holes.gameObject.SetActive(false);
-                        }else if(transform.localScale.x < holes.transform.localScale.x){
-                            holeController.SetDeath();
-                            if(holeType == HoleType.Player){
-                                GameHandler.i.SetKilledByName(holes.GetHolesGroupData().LeaderName);
-                                GameHandler.i.EndGame(true);
-                            }else{
-                                gameObject.SetActive(false);
+                            else if (transform.localScale.x < holes.transform.localScale.x)
+                            {
+                                holeController.SetDeath();
+                                if (holeType == HoleType.Player)
+                                {
+                                    GameHandler.i.SetKilledByName(holes.GetHolesGroupData().LeaderName);
+                                    GameHandler.i.EndGame(true);
+                                }
+                                else
+                                {
+                                    gameObject.SetActive(false);
+                                }
                             }
                         }
                     }

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Hole : HoleController {
+    [SerializeField] private float maxMovePointForward,maxMovePointBack,maxMovePointRight,maxMovePointLeft;
     
     [SerializeField] private camFollower camFollower;
     private Vector3 moveDirection = Vector3.zero;
@@ -17,9 +18,12 @@ public class Hole : HoleController {
         AudioSource audio = GetComponent<AudioSource>();
         thisTrans = transform;
         onSizeChange += ()=>{
-            currentCameraIndex ++;
-            camFollower.ChangeOffset(5);
-            audio.Play();
+            if(thisTrans.localScale.x < 7)
+            {
+                currentCameraIndex++;
+                camFollower.ChangeOffset(3);
+                audio.Play();
+            }
         };
         base.OnObjectFallInHole += ()=>{
             Handheld.Vibrate();
@@ -58,7 +62,27 @@ public class Hole : HoleController {
                 }else{
                     moveDirection = new Vector3(0.0f, 0.0f, 0f);
                 }
-                thisTrans.localRotation = Quaternion.LookRotation(TouchRotateSingle.eulerRotation);
+                Vector3 moveDir = TouchRotateSingle.eulerRotation;
+                if(transform.position.x > maxMovePointRight && moveDir.x > 0){
+                    moveDir.x = 0f;
+                    
+                    
+                }
+                else if(transform.position.x < maxMovePointLeft && moveDir.x < 0){
+                    moveDir.x = 0f;
+                    
+                }
+                else if(transform.position.z > maxMovePointForward && moveDir.z > 0){
+                    moveDir.z = 0f;
+                    
+                }
+                else if(transform.position.z < maxMovePointBack && moveDir.z < 0f){
+                    moveDir.z = 0f;
+                    
+                }
+                Debug.Log("Move Input " + moveDir);
+                thisTrans.localRotation = Quaternion.LookRotation(moveDir);
+
             }else{
                 moveDirection = Vector3.zero;
             }
